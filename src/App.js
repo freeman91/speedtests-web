@@ -1,25 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const prepareChartData = (data) => {
+  return data.map((datum) => {
+    return JSON.parse(datum);
+  });
+};
+
+const App = () => {
+  const [data, setData] = useState();
+
+  useEffect(() => {
+    function getData() {
+      return axios
+        .get('http://192.168.0.42:9000/tests/past-day')
+        .then((response) => {
+          setData(prepareChartData(response.data['payload']));
+        })
+        .catch((error) => console.error(error));
+    }
+    getData();
+  }, []);
+
+  console.log('data: ', data);
+
+  return <div className='App'></div>;
+};
 
 export default App;
