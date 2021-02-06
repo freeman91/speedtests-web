@@ -1,0 +1,15 @@
+html {
+  background-color: #212529;
+  height: 98%;
+  width: 98%;
+}
+
+body {
+  height: 100%;
+  width: 100%;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
