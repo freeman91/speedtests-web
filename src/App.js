@@ -58,13 +58,17 @@ const App = () => {
               <Typography className={classes.title} gutterBottom>
                 Internet Speed
               </Typography>
-              <Box height={300} position='relative'>
+              <Box height={400} position='relative'>
                 <ResponsiveContainer minHeight='250' minWidth='250'>
-                  <LineChart width={500} height={400} data={data}>
+                  <LineChart width={500} height={500} data={data}>
                     <XAxis
                       dataKey='timestamp'
-                      padding={{ left: 30, right: 30 }}
+                      padding={{ right: 40 }}
                       tickFormatter={formatTimestamp}
+                      angle={45}
+                      tickMargin={3}
+                      textAnchor='begin'
+                      height={60}
                     />
                     <YAxis />
                     <Tooltip
