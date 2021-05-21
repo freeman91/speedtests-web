@@ -1,10 +1,11 @@
 import axios from 'axios';
+import { endsWith, range, forEach } from 'lodash';
 import { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box, Card, CardContent, Grid, Typography } from '@material-ui/core';
 import {
-  LineChart,
-  Line,
+  Area,
+  AreaChart,
   XAxis,
   YAxis,
   Tooltip,
@@ -14,9 +15,36 @@ import {
 import { API_HOST } from './const';
 
 const prepareChartData = (data) => {
-  return data.map((datum) => {
-    return JSON.parse(datum);
+  let timeNow = Math.round(new Date().getTime() / 1000);
+  timeNow = timeNow - (timeNow % 60);
+  const timeStart = timeNow - 86400;
+
+  let timeseries = data.map((datum) => {
+    const val = JSON.parse(datum);
+    if (endsWith(String(val.timestamp), '1')) val.timestamp = val.timestamp - 1;
+    if (endsWith(String(val.timestamp), '2')) val.timestamp = val.timestamp - 2;
+    if (endsWith(String(val.timestamp), '3')) val.timestamp = val.timestamp - 3;
+    return val;
   });
+
+  const returnArr = [];
+  let idx = 0;
+  // loop through the data and if there's any missing data fill it in
+  forEach(range(timeStart, timeNow, 60), function (time) {
+    let nextVal = timeseries[idx];
+
+    if (nextVal.timestamp === time) {
+      returnArr.push(nextVal);
+      idx += 1;
+    }
+    if (nextVal.timestamp < time) {
+      returnArr.push(nextVal);
+      idx += 1;
+    } else {
+      returnArr.push({ timestamp: time, download: 0, upload: 0, ping: 0 });
+    }
+  });
+  return returnArr;
 };
 
 const formatTimestamp = (timestamp) => {
@@ -33,7 +61,7 @@ const useStyles = makeStyles(() => ({
   card: {},
 }));
 
-const App = () => {
+export default function App() {
   const classes = useStyles();
   const [data, setData] = useState();
 
@@ -49,6 +77,7 @@ const App = () => {
     getData();
   }, []);
 
+  console.log('data: ', data);
   return (
     <div className={classes.root}>
       <Grid container spacing={3}>
@@ -60,7 +89,7 @@ const App = () => {
               </Typography>
               <Box height={400} position='relative'>
                 <ResponsiveContainer minHeight='250' minWidth='250'>
-                  <LineChart width={500} height={500} data={data}>
+                  <AreaChart width={500} height={500} data={data}>
                     <XAxis
                       dataKey='timestamp'
                       padding={{ right: 40 }}
@@ -79,25 +108,25 @@ const App = () => {
                         return `${value} ms`;
                       }}
                     />
-                    <Line
+                    <Area
                       dot={false}
                       type='monotone'
                       dataKey='download'
                       stroke='#8884d8'
                     />
-                    <Line
+                    <Area
                       dot={false}
                       type='monotone'
                       dataKey='upload'
                       stroke='#fca311'
                     />
-                    <Line
+                    <Area
                       dot={false}
                       type='monotone'
                       dataKey='ping'
                       stroke='#941c2f'
                     />
-                  </LineChart>
+                  </AreaChart>
                 </ResponsiveContainer>
               </Box>
             </CardContent>
@@ -106,6 +135,4 @@ const App = () => {
       </Grid>
     </div>
   );
-};
-
-export default App;
+}
