@@ -35,8 +35,7 @@ const prepareChartData = (data) => {
       if (nextVal.timestamp === time) {
         returnArr.push(nextVal);
         idx += 1;
-      }
-      if (nextVal.timestamp < time) {
+      } else if (nextVal.timestamp < time) {
         returnArr.push(nextVal);
         idx += 1;
       } else {
@@ -77,6 +76,7 @@ export default function App() {
     getData();
   }, []);
 
+  // console.log('data: ', data);
   return (
     <div className={classes.root}>
       <Grid container spacing={3}>
