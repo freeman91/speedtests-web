@@ -19,8 +19,7 @@ const prepareChartData = (data) => {
   timeNow = timeNow - (timeNow % 60);
   const timeStart = timeNow - 86400;
 
-  let timeseries = data.map((datum) => {
-    const val = JSON.parse(datum);
+  let timeseries = data.map((val) => {
     if (endsWith(String(val.timestamp), '1')) val.timestamp = val.timestamp - 1;
     if (endsWith(String(val.timestamp), '2')) val.timestamp = val.timestamp - 2;
     if (endsWith(String(val.timestamp), '3')) val.timestamp = val.timestamp - 3;
@@ -32,16 +31,17 @@ const prepareChartData = (data) => {
   // loop through the data and if there's any missing data fill it in
   forEach(range(timeStart, timeNow, 60), function (time) {
     let nextVal = timeseries[idx];
-
-    if (nextVal.timestamp === time) {
-      returnArr.push(nextVal);
-      idx += 1;
-    }
-    if (nextVal.timestamp < time) {
-      returnArr.push(nextVal);
-      idx += 1;
-    } else {
-      returnArr.push({ timestamp: time, download: 0, upload: 0, ping: 0 });
+    if (nextVal) {
+      if (nextVal.timestamp === time) {
+        returnArr.push(nextVal);
+        idx += 1;
+      }
+      if (nextVal.timestamp < time) {
+        returnArr.push(nextVal);
+        idx += 1;
+      } else {
+        returnArr.push({ timestamp: time, download: 0, upload: 0, ping: 0 });
+      }
     }
   });
   return returnArr;
@@ -77,7 +77,6 @@ export default function App() {
     getData();
   }, []);
 
-  console.log('data: ', data);
   return (
     <div className={classes.root}>
       <Grid container spacing={3}>
